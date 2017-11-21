@@ -4,7 +4,7 @@ var configuration   = Argument<string>("configuration", "Release");
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
-var packPath            = Directory("./src/sanity");
+var packPath            = Directory("./src/client");
 var buildArtifacts      = Directory("./artifacts/packages");
 // A directory path to an Artifacts directory.
 var artifactsDirectory = Directory("./artifacts");
@@ -64,7 +64,7 @@ Task("Build")
     }
 
     // tests
-	projects = GetFiles("./src/test/**/*.csproj");
+	projects = GetFiles("./test/**/*.csproj");
 	foreach(var project in projects)
 	{
 	    DotNetCoreBuild(project.GetDirectory().FullPath, settings); 
