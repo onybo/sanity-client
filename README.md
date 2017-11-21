@@ -1,5 +1,5 @@
 # sanity-client
-.Net core client for Sanity CMS
+.Net core client for Sanity CMS (https://www.sanity.io)
 
 Implements the three main functions of the data API of Sanity
 - Get to get a single document by Id
