@@ -57,16 +57,19 @@ namespace Olav.Sanity.Client
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
             _httpClient.BaseAddress = new Uri($"https://{projectId}.api.sanity.io/v1/data/");
+            if (!string.IsNullOrEmpty(_token))
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         }
 
         /// <summary>
         /// Get a single document by id
         /// </summary>
         /// <param name="id">Document id</param>
-        public virtual async Task<(HttpStatusCode, T)> GetDocument<T>(string id) where T : class
+        /// <returns>Tuple of HttpStatusCode and a T wrapped in a DocumentResult</returns>
+        public virtual async Task<(HttpStatusCode, DocumentResult<T>)> GetDocument<T>(string id) where T : class
         {
             var message = await _httpClient.GetAsync($"doc/{_dataset}/{id}");
-            return await ResponseToResult<T>(message);
+            return await ResponseToResult<DocumentResult<T>>(message);
         }
 
         private async Task<(HttpStatusCode, T)> ResponseToResult<T>(HttpResponseMessage message) where T : class
@@ -83,11 +86,12 @@ namespace Olav.Sanity.Client
         /// Fetch documents using a GROQ query
         /// </summary>
         /// <param name="query">GROQ query</param>
-        public virtual async Task<(HttpStatusCode, T)> Fetch<T>(string query) where T : class
+        /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
+        public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query) where T : class
         {
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
             var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
-            return await ResponseToResult<T>(message);
+            return await ResponseToResult<FetchResult<T>>(message);
         }
 
         /// <summary>
@@ -97,13 +101,15 @@ namespace Olav.Sanity.Client
         /// <param name="returnIds">If true, the id's of modified documents are returned</param>
         /// <param name="returnDocuments">If true, the entire content of changed documents is returned</param>
         /// <param name="visibility">If "sync" the request will not return until the requested changes are visible to subsequent queries, if "async" the request will return immediately when the changes have been committed. For maximum performance, use "async" always, except when you need your next query to see the changes you made. "deferred" is used in cases where you are adding or mutating a large number of documents and don't need them to be immediately available.</param>
-        public virtual async Task<(HttpStatusCode, string)> Mutate(
+        public virtual async Task<(HttpStatusCode, MutationResult)> Mutate(
             Mutations mutations, bool returnIds = false, bool returnDocuments = false,
             Visibility visibility = Visibility.Sync)
         {
-            var content = new StringContent(mutations.Serialize());
-            var message = await _httpClient.PostAsync($"mutate/{_dataset}?returnIds={returnIds}&returnDocuments={returnDocuments}&visibiliy={visibility.ToString().ToLower()}", content);
-            return await ResponseToResult<string>(message);
+            var json = mutations.Serialize();
+            var content = new StringContent(json);
+            var url = $"mutate/{_dataset}?returnIds={returnIds.ToString().ToLower()}&returnDocuments={returnDocuments.ToString().ToLower()}&visibility={visibility.ToString().ToLower()}";
+            var message = await _httpClient.PostAsync(url, content);
+            return await ResponseToResult<MutationResult>(message);
         }
 
         public void Dispose()

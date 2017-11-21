@@ -47,7 +47,11 @@ namespace Olav.Sanity.Client.Mutators
             return JsonConvert.SerializeObject(
                         this,
                         Formatting.Indented,
-                        new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+                        new JsonSerializerSettings 
+                        {
+                            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                            NullValueHandling = NullValueHandling.Ignore                             
+                        }
                     );
         }
     }
