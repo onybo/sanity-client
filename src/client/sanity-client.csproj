@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Olav Nybø</Authors>
+    <PackageProjectUrl>https://github.com/onybo/sanity-client</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/onybo/sanity-client/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/onybo/sanity-client.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>CMS Sanity</PackageTags>
+    <Description>.Net Core client for Sanity CMS https://www.sanity.io/</Description>
+    <Version>$(SemVer)</Version>    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
+</Project>
