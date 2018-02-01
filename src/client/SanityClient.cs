@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -31,7 +33,7 @@ namespace Olav.Sanity.Client
                             string token,
                             bool useCdn)
             : this(projectId, dataset, token, useCdn, new HttpClientHandler())
-        {            
+        {
         }
 
         public SanityClient(string projectId,
@@ -44,7 +46,7 @@ namespace Olav.Sanity.Client
             if (string.IsNullOrEmpty(dataset)) throw new ArgumentNullException(nameof(dataset));
             if (innerHttpMessageHandler == null) throw new ArgumentNullException(nameof(innerHttpMessageHandler));
 
-            _projectId = projectId; 
+            _projectId = projectId;
             _dataset = dataset;
             _token = token;
             _useCdn = useCdn;
@@ -79,19 +81,39 @@ namespace Olav.Sanity.Client
                 return (message.StatusCode, null);
             }
             var content = await message.Content.ReadAsStringAsync();
+
             return (message.StatusCode, JsonConvert.DeserializeObject<T>(content));
+        }
+
+        private async Task<(HttpStatusCode, T)> FetchResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
+                where T : FetchResult<V>
+                where V : SanityDoc
+        {
+            if (!message.IsSuccessStatusCode)
+            {
+                return (message.StatusCode, null);
+            }
+            var content = await message.Content.ReadAsStringAsync();
+
+            var result = JsonConvert.DeserializeObject<T>(content);
+            result.Result = excludeDrafts ?
+                                result.Result.Where(doc => !doc.Id.StartsWith("drafts.")).ToArray() :
+                                result.Result;
+
+            return (message.StatusCode, result);
         }
 
         /// <summary>
         /// Fetch documents using a GROQ query
         /// </summary>
         /// <param name="query">GROQ query</param>
+        /// <param name="excludeDrafts">set to false if unpublished documents should be included in the result</param>
         /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
-        public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query) where T : class
+        public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true) where T : SanityDoc
         {
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
             var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
-            return await ResponseToResult<FetchResult<T>>(message);
+            return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts);
         }
 
         /// <summary>
