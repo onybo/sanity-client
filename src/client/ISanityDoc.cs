@@ -2,9 +2,9 @@ using Newtonsoft.Json;
 
 namespace Olav.Sanity.Client
 {
-    public class SanityDoc
+    public interface ISanityDoc
     {
         [JsonProperty(PropertyName="_id")]
-        public string Id { get; set; }
+        string Id { get; set; }
     }
 }
