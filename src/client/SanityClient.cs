@@ -64,18 +64,12 @@ namespace Olav.Sanity.Client
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         }
 
-        [Obsolete("Use GetDocumentAsync method instead.")]
-        public virtual Task<(HttpStatusCode, DocumentResult<T>)> GetDocument<T>(string id) where T : class
-        {
-            return GetDocumentAsync<T>(id);
-        }
-
         /// <summary>
         /// Get a single document by id
         /// </summary>
         /// <param name="id">Document id</param>
         /// <returns>Tuple of HttpStatusCode and a T wrapped in a DocumentResult</returns>
-        public virtual async Task<(HttpStatusCode, DocumentResult<T>)> GetDocumentAsync<T>(string id) where T : class
+        public virtual async Task<(HttpStatusCode, DocumentResult<T>)> GetDocument<T>(string id) where T : class
         {
             var message = await _httpClient.GetAsync($"doc/{_dataset}/{id}").ConfigureAwait(false);
             return await ResponseToResult<DocumentResult<T>>(message).ConfigureAwait(false);
@@ -109,19 +103,13 @@ namespace Olav.Sanity.Client
             return (message.StatusCode, result);
         }
 
-        [Obsolete("Use GetDocumentsAsync or QueryAsync method instead.")]
-        public virtual Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true)
-        {
-            return GetDocumentsAsync<T>(query, excludeDrafts);
-        }
-
         /// <summary>
         /// Fetch an array of documents using a GROQ query
         /// </summary>
         /// <param name="query">GROQ query</param>
         /// <param name="excludeDrafts">set to false if unpublished documents should be included in the result</param>
         /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
-        public virtual async Task<(HttpStatusCode, FetchResult<T>)> GetDocumentsAsync<T>(string query, bool excludeDrafts = true)
+        public virtual async Task<(HttpStatusCode, FetchResult<T>)> GetDocuments<T>(string query, bool excludeDrafts = true)
         {
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
             var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}").ConfigureAwait(false);
@@ -134,7 +122,7 @@ namespace Olav.Sanity.Client
         /// </summary>
         /// <param name="query">GROQ query</param>
         /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
-        public virtual async Task<(HttpStatusCode, QueryResult<T>)> QueryAsync<T>(string query)
+        public virtual async Task<(HttpStatusCode, QueryResult<T>)> Query<T>(string query)
         {
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
             var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}").ConfigureAwait(false);
@@ -155,13 +143,6 @@ namespace Olav.Sanity.Client
             return (message.StatusCode, result);
         }
 
-        [Obsolete("Use MutateAsync method instead.")]
-        public virtual Task<(HttpStatusCode, MutationResult)> Mutate(
-            Mutations mutations, bool returnIds = false, bool returnDocuments = false,
-            Visibility visibility = Visibility.Sync)
-        {
-            return MutateAsync(mutations, returnIds, returnDocuments, visibility);
-        }
 
         /// <summary>
         /// Change one or more document using the given Mutations
@@ -170,7 +151,7 @@ namespace Olav.Sanity.Client
         /// <param name="returnIds">If true, the id's of modified documents are returned</param>
         /// <param name="returnDocuments">If true, the entire content of changed documents is returned</param>
         /// <param name="visibility">If "sync" the request will not return until the requested changes are visible to subsequent queries, if "async" the request will return immediately when the changes have been committed. For maximum performance, use "async" always, except when you need your next query to see the changes you made. "deferred" is used in cases where you are adding or mutating a large number of documents and don't need them to be immediately available.</param>
-        public virtual async Task<(HttpStatusCode, MutationResult)> MutateAsync(
+        public virtual async Task<(HttpStatusCode, MutationResult)> Mutate(
             Mutations mutations, bool returnIds = false, bool returnDocuments = false,
             Visibility visibility = Visibility.Sync)
         {
