@@ -104,7 +104,7 @@ namespace Olav.Sanity.Client
         }
 
         /// <summary>
-        /// Fetch documents using a GROQ query
+        /// Fetch an array of documents using a GROQ query
         /// </summary>
         /// <param name="query">GROQ query</param>
         /// <param name="excludeDrafts">set to false if unpublished documents should be included in the result</param>
@@ -115,6 +115,34 @@ namespace Olav.Sanity.Client
             var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
             return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts);
         }
+
+        /// <summary>
+        /// Fetch an arbitrary object result using a GROQ query. This should be used where the response is not necessarily 
+        /// expected to be an array. Typical examples include aggregate queries such as count() or queries for a single property or document.
+        /// </summary>
+        /// <param name="query">GROQ query</param>
+        /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
+        public virtual async Task<(HttpStatusCode, QueryResult<T>)> Query<T>(string query)
+        {
+            var encodedQ = System.Net.WebUtility.UrlEncode(query);
+            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
+            return await QueryResultToResult<QueryResult<T>, T>(message, false);
+        }
+
+        private async Task<(HttpStatusCode, T)> QueryResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
+        where T : QueryResult<V>
+        {
+            if (!message.IsSuccessStatusCode)
+            {
+                return (message.StatusCode, null);
+            }
+            var content = await message.Content.ReadAsStringAsync();
+
+            var result = JsonConvert.DeserializeObject<T>(content);
+
+            return (message.StatusCode, result);
+        }
+
 
         /// <summary>
         /// Change one or more document using the given Mutations
