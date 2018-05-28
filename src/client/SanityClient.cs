@@ -70,8 +70,8 @@ namespace Olav.Sanity.Client
         /// <returns>Tuple of HttpStatusCode and a T wrapped in a DocumentResult</returns>
         public virtual async Task<(HttpStatusCode, DocumentResult<T>)> GetDocument<T>(string id) where T : class
         {
-            var message = await _httpClient.GetAsync($"doc/{_dataset}/{id}");
-            return await ResponseToResult<DocumentResult<T>>(message);
+            var message = await _httpClient.GetAsync($"doc/{_dataset}/{id}").ConfigureAwait(false);
+            return await ResponseToResult<DocumentResult<T>>(message).ConfigureAwait(false);
         }
 
         private async Task<(HttpStatusCode, T)> ResponseToResult<T>(HttpResponseMessage message) where T : class
@@ -80,7 +80,7 @@ namespace Olav.Sanity.Client
             {
                 return (message.StatusCode, null);
             }
-            var content = await message.Content.ReadAsStringAsync();
+            var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             return (message.StatusCode, JsonConvert.DeserializeObject<T>(content));
         }
@@ -93,7 +93,7 @@ namespace Olav.Sanity.Client
             {
                 return (message.StatusCode, null);
             }
-            var content = await message.Content.ReadAsStringAsync();
+            var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             var result = JsonConvert.DeserializeObject<T>(content);
             result.Result = excludeDrafts ?
@@ -112,8 +112,8 @@ namespace Olav.Sanity.Client
         public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true) where T : ISanityDoc
         {
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
-            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
-            return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts);
+            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}").ConfigureAwait(false);
+            return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -130,8 +130,8 @@ namespace Olav.Sanity.Client
             var json = mutations.Serialize();
             var content = new StringContent(json);
             var url = $"mutate/{_dataset}?returnIds={returnIds.ToString().ToLower()}&returnDocuments={returnDocuments.ToString().ToLower()}&visibility={visibility.ToString().ToLower()}";
-            var message = await _httpClient.PostAsync(url, content);
-            return await ResponseToResult<MutationResult>(message);
+            var message = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
+            return await ResponseToResult<MutationResult>(message).ConfigureAwait(false);
         }
 
         public void Dispose()
