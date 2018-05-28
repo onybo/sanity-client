@@ -91,7 +91,6 @@ namespace Olav.Sanity.Client
         {
             return GetDocuments<T>(query, excludeDrafts);
         }
-
         /// <summary>
         /// Fetch an array of documents using a GROQ query
         /// </summary>
@@ -107,7 +106,7 @@ namespace Olav.Sanity.Client
 
         
         private async Task<(HttpStatusCode, T)> FetchResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
-                where T : FetchResult<V>
+        where T : FetchResult<V>
         {
             if (!message.IsSuccessStatusCode)
             {
