@@ -86,23 +86,6 @@ namespace Olav.Sanity.Client
             return (message.StatusCode, JsonConvert.DeserializeObject<T>(content));
         }
 
-        private async Task<(HttpStatusCode, T)> FetchResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
-                where T : FetchResult<V>
-        {
-            if (!message.IsSuccessStatusCode)
-            {
-                return (message.StatusCode, null);
-            }
-            var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-            var result = JsonConvert.DeserializeObject<T>(content);
-            result.Result = excludeDrafts ?
-                                result.Result.Where(doc => !doc.IsDraftDocument()).ToArray() :
-                                result.Result;
-
-            return (message.StatusCode, result);
-        }
-
         [Obsolete("Use GetDocuments method instead.")]
         public virtual Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true)
         {
@@ -120,6 +103,24 @@ namespace Olav.Sanity.Client
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
             var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}").ConfigureAwait(false);
             return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts).ConfigureAwait(false);
+        }
+
+        
+        private async Task<(HttpStatusCode, T)> FetchResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
+                where T : FetchResult<V>
+        {
+            if (!message.IsSuccessStatusCode)
+            {
+                return (message.StatusCode, null);
+            }
+            var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            var result = JsonConvert.DeserializeObject<T>(content);
+            result.Result = excludeDrafts ?
+                                result.Result.Where(doc => !doc.IsDraftDocument()).ToArray() :
+                                result.Result;
+
+            return (message.StatusCode, result);
         }
 
         /// <summary>
