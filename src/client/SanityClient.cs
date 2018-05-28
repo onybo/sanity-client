@@ -103,6 +103,12 @@ namespace Olav.Sanity.Client
             return (message.StatusCode, result);
         }
 
+        [Obsolete("Use GetDocuments method instead.")]
+        public virtual Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true)
+        {
+            return GetDocuments<T>(query, excludeDrafts);
+        }
+
         /// <summary>
         /// Fetch an array of documents using a GROQ query
         /// </summary>
