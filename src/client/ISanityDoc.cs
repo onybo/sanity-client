@@ -4,7 +4,6 @@ namespace Olav.Sanity.Client
 {
     public interface ISanityDoc
     {
-        [JsonProperty(PropertyName="_id")]
-        string Id { get; set; }
+        string Id { get; }
     }
 }
