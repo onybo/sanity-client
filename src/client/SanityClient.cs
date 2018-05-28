@@ -71,8 +71,8 @@ namespace Olav.Sanity.Client
         /// <returns>Tuple of HttpStatusCode and a T wrapped in a DocumentResult</returns>
         public virtual async Task<(HttpStatusCode, DocumentResult<T>)> GetDocument<T>(string id) where T : class
         {
-            var message = await _httpClient.GetAsync($"doc/{_dataset}/{id}");
-            return await ResponseToResult<DocumentResult<T>>(message);
+            var message = await _httpClient.GetAsync($"doc/{_dataset}/{id}").ConfigureAwait(false);
+            return await ResponseToResult<DocumentResult<T>>(message).ConfigureAwait(false);
         }
 
         private async Task<(HttpStatusCode, T)> ResponseToResult<T>(HttpResponseMessage message) where T : class
@@ -81,24 +81,30 @@ namespace Olav.Sanity.Client
             {
                 return (message.StatusCode, null);
             }
-            var content = await message.Content.ReadAsStringAsync();
+            var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             return (message.StatusCode, JsonConvert.DeserializeObject<T>(content));
         }
 
+        [Obsolete("Use GetDocuments method instead.")]
+        public virtual Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true)
+        {
+            return GetDocuments<T>(query, excludeDrafts);
+        }
         /// <summary>
-        /// Fetch documents using a GROQ query
+        /// Fetch an array of documents using a GROQ query
         /// </summary>
         /// <param name="query">GROQ query</param>
         /// <param name="excludeDrafts">set to false if unpublished documents should be included in the result</param>
         /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
-        public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true)
+        public virtual async Task<(HttpStatusCode, FetchResult<T>)> GetDocuments<T>(string query, bool excludeDrafts = true)
         {
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
-            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
-            return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts);
+            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}").ConfigureAwait(false);
+            return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts).ConfigureAwait(false);
         }
 
+        
         private async Task<(HttpStatusCode, T)> FetchResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
         where T : FetchResult<V>
         {
@@ -106,7 +112,7 @@ namespace Olav.Sanity.Client
             {
                 return (message.StatusCode, null);
             }
-            var content = await message.Content.ReadAsStringAsync();
+            var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             var result = JsonConvert.DeserializeObject<T>(content);
             result.Result = excludeDrafts ?
@@ -115,6 +121,34 @@ namespace Olav.Sanity.Client
 
             return (message.StatusCode, result);
         }
+
+        /// <summary>
+        /// Fetch an arbitrary query result using a GROQ query. This can be used where the response is not necessarily 
+        /// expected to be an array of documents. Typical examples include aggregate queries such as count() or queries for a single property or document.
+        /// </summary>
+        /// <param name="query">GROQ query</param>
+        /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
+        public virtual async Task<(HttpStatusCode, QueryResult<T>)> Query<T>(string query)
+        {
+            var encodedQ = System.Net.WebUtility.UrlEncode(query);
+            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}").ConfigureAwait(false);
+            return await QueryResultToResult<QueryResult<T>, T>(message, false).ConfigureAwait(false);
+        }
+
+        private async Task<(HttpStatusCode, T)> QueryResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
+        where T : QueryResult<V>
+        {
+            if (!message.IsSuccessStatusCode)
+            {
+                return (message.StatusCode, null);
+            }
+            var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            var result = JsonConvert.DeserializeObject<T>(content);
+
+            return (message.StatusCode, result);
+        }
+
 
         /// <summary>
         /// Change one or more document using the given Mutations
@@ -130,8 +164,8 @@ namespace Olav.Sanity.Client
             var json = mutations.Serialize();
             var content = new StringContent(json);
             var url = $"mutate/{_dataset}?returnIds={returnIds.ToString().ToLower()}&returnDocuments={returnDocuments.ToString().ToLower()}&visibility={visibility.ToString().ToLower()}";
-            var message = await _httpClient.PostAsync(url, content);
-            return await ResponseToResult<MutationResult>(message);
+            var message = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
+            return await ResponseToResult<MutationResult>(message).ConfigureAwait(false);
         }
 
         public void Dispose()
