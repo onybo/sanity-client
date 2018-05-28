@@ -125,8 +125,8 @@ namespace Olav.Sanity.Client
         public virtual async Task<(HttpStatusCode, QueryResult<T>)> Query<T>(string query)
         {
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
-            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
-            return await QueryResultToResult<QueryResult<T>, T>(message, false);
+            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}").ConfigureAwait(false);
+            return await QueryResultToResult<QueryResult<T>, T>(message, false).ConfigureAwait(false);
         }
 
         private async Task<(HttpStatusCode, T)> QueryResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
