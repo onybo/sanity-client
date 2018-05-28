@@ -8,11 +8,11 @@ namespace Olav.Sanity.Client.Mutators
     public class Mutations
     {
         [JsonProperty(PropertyName = "Mutations")]
-        private readonly List<Mutator> _mutations;
-        
+        private readonly List<object> _mutations;
 
-        public Mutations() => _mutations = new List<Mutator>();
-        
+
+        public Mutations() => _mutations = new List<object>();
+
         public Mutations AddCreate(ISanityType obj)
         {
             _mutations.Add(new CreateMutator{Create = obj});
@@ -36,7 +36,7 @@ namespace Olav.Sanity.Client.Mutators
             return this;
         }
 
-        public Mutations AddPatch(ISanityType obj)
+        public Mutations AddPatch(object obj)
         {
             _mutations.Add(new PatchMutator{Patch = obj});
             return this;
@@ -47,10 +47,10 @@ namespace Olav.Sanity.Client.Mutators
             return JsonConvert.SerializeObject(
                         this,
                         Formatting.Indented,
-                        new JsonSerializerSettings 
+                        new JsonSerializerSettings
                         {
                             ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                            NullValueHandling = NullValueHandling.Ignore                             
+                            NullValueHandling = NullValueHandling.Ignore
                         }
                     );
         }
