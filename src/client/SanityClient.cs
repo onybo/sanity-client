@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Olav.Sanity.Client.Extensions;
 using Olav.Sanity.Client.Mutators;
 
 namespace Olav.Sanity.Client
@@ -85,14 +86,13 @@ namespace Olav.Sanity.Client
             return (message.StatusCode, JsonConvert.DeserializeObject<T>(content));
         }
 
-
         /// <summary>
         /// Fetch documents using a GROQ query
         /// </summary>
         /// <param name="query">GROQ query</param>
         /// <param name="excludeDrafts">set to false if unpublished documents should be included in the result</param>
         /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
-        public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true) where T : ISanityDoc
+        public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true)
         {
             var encodedQ = System.Net.WebUtility.UrlEncode(query);
             var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
@@ -100,8 +100,7 @@ namespace Olav.Sanity.Client
         }
 
         private async Task<(HttpStatusCode, T)> FetchResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
-                where T : FetchResult<V>
-                where V : ISanityDoc
+        where T : FetchResult<V>
         {
             if (!message.IsSuccessStatusCode)
             {
@@ -111,7 +110,7 @@ namespace Olav.Sanity.Client
 
             var result = JsonConvert.DeserializeObject<T>(content);
             result.Result = excludeDrafts ?
-                                result.Result.Where(doc => !doc.Id.StartsWith("drafts.")).ToArray() :
+                                result.Result.Where(doc => !doc.IsDraftDocument()).ToArray() :
                                 result.Result;
 
             return (message.StatusCode, result);
