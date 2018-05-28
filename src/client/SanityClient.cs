@@ -155,6 +155,13 @@ namespace Olav.Sanity.Client
             return (message.StatusCode, result);
         }
 
+        [Obsolete("Use MutateAsync method instead.")]
+        public virtual Task<(HttpStatusCode, MutationResult)> Mutate(
+            Mutations mutations, bool returnIds = false, bool returnDocuments = false,
+            Visibility visibility = Visibility.Sync)
+        {
+            return MutateAsync(mutations, returnIds, returnDocuments, visibility);
+        }
 
         /// <summary>
         /// Change one or more document using the given Mutations
