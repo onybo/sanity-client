@@ -85,6 +85,20 @@ namespace Olav.Sanity.Client
             return (message.StatusCode, JsonConvert.DeserializeObject<T>(content));
         }
 
+
+        /// <summary>
+        /// Fetch documents using a GROQ query
+        /// </summary>
+        /// <param name="query">GROQ query</param>
+        /// <param name="excludeDrafts">set to false if unpublished documents should be included in the result</param>
+        /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
+        public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true) where T : ISanityDoc
+        {
+            var encodedQ = System.Net.WebUtility.UrlEncode(query);
+            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
+            return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts);
+        }
+
         private async Task<(HttpStatusCode, T)> FetchResultToResult<T, V>(HttpResponseMessage message, bool excludeDrafts)
                 where T : FetchResult<V>
                 where V : ISanityDoc
@@ -101,19 +115,6 @@ namespace Olav.Sanity.Client
                                 result.Result;
 
             return (message.StatusCode, result);
-        }
-
-        /// <summary>
-        /// Fetch documents using a GROQ query
-        /// </summary>
-        /// <param name="query">GROQ query</param>
-        /// <param name="excludeDrafts">set to false if unpublished documents should be included in the result</param>
-        /// <returns>Tuple of HttpStatusCode and T's wrapped in a FetchResult</returns>
-        public virtual async Task<(HttpStatusCode, FetchResult<T>)> Fetch<T>(string query, bool excludeDrafts = true) where T : ISanityDoc
-        {
-            var encodedQ = System.Net.WebUtility.UrlEncode(query);
-            var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}");
-            return await FetchResultToResult<FetchResult<T>, T>(message, excludeDrafts);
         }
 
         /// <summary>
