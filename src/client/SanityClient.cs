@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Olav.Sanity.Client.Extensions;
 using Olav.Sanity.Client.Mutators;
 
 namespace Olav.Sanity.Client
@@ -97,7 +98,7 @@ namespace Olav.Sanity.Client
 
             var result = JsonConvert.DeserializeObject<T>(content);
             result.Result = excludeDrafts ?
-                                result.Result.Where(doc => !doc.Id.StartsWith("drafts.")).ToArray() :
+                                result.Result.Where(doc => !doc.IsDraftDocument()).ToArray() :
                                 result.Result;
 
             return (message.StatusCode, result);
