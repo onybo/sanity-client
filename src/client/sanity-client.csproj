@@ -10,11 +10,11 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>CMS Sanity</PackageTags>
     <Description>.Net Core client for Sanity CMS https://www.sanity.io/</Description>
-    <Version>$(SemVer)</Version>    
+    <Version>$(SemVer)</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
 </Project>
