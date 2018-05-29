@@ -3,7 +3,8 @@
 
 Implements the three main functions of the data API of Sanity
 - Get to get a single document by Id
-- Fetch to get a collection of documents using a GROQ query
+- Query to get a collection of documents using a GROQ query (note breaking change from version 0.0.9 to 0.1.0, used to be Fetch)
+- QuerySingle to query for a single value using e.g. an aggregate function.
 - Mutate to create, modify or delete documents
 
 First you need to declare your Document type. Document is a C# class with the same properties as your documents in Sanity CMS
