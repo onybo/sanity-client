@@ -59,7 +59,9 @@ namespace Olav.Sanity.Client
             _httpClient.DefaultRequestHeaders.Accept.Add(
                 new MediaTypeWithQualityHeaderValue("application/json"));
 
-            _httpClient.BaseAddress = new Uri($"https://{projectId}.api.sanity.io/v1/data/");
+            _httpClient.BaseAddress = useCdn ?
+                                        new Uri($"https://{projectId}.apicdn.sanity.io/v1/data/") :
+                                        new Uri($"https://{projectId}.api.sanity.io/v1/data/");
             if (!string.IsNullOrEmpty(_token))
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
         }
