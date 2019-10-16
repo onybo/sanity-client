@@ -160,7 +160,7 @@ namespace Olav.Sanity.Client
             Visibility visibility = Visibility.Sync)
         {
             var json = mutations.Serialize();
-            var content = new StringContent(json);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
             var url = $"mutate/{_dataset}?returnIds={returnIds.ToString().ToLower()}&returnDocuments={returnDocuments.ToString().ToLower()}&visibility={visibility.ToString().ToLower()}";
             var message = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
             return await ResponseToResult<MutationResult>(message).ConfigureAwait(false);
