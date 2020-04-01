@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace sanity
+namespace Olav.Sanity.Client.Transactions
 {
     public class TransactionsQuery
     {

@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Transactions;
 using Newtonsoft.Json;
 using Olav.Sanity.Client.Extensions;
 using Olav.Sanity.Client.Mutators;
-using sanity;
-using Transaction = sanity.Transaction;
+using Olav.Sanity.Client.Transactions;
+using Transaction = Olav.Sanity.Client.Transactions.Transaction;
 
 namespace Olav.Sanity.Client
 {

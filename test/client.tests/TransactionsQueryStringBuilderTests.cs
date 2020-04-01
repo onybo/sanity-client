@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using sanity;
+using Olav.Sanity.Client.Transactions;
 using Xunit;
 
 namespace Olav.Sanity.Client.Test

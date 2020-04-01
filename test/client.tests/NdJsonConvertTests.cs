@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
-using sanity;
+using Olav.Sanity.Client.Transactions;
 using Xunit;
 
 namespace Olav.Sanity.Client.Test

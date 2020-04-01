@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Web;
 
-namespace sanity
+namespace Olav.Sanity.Client.Transactions
 {
     public static class TransactionsQueryStringBuilder
     {
