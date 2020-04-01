@@ -5,9 +5,12 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using System.Transactions;
 using Newtonsoft.Json;
 using Olav.Sanity.Client.Extensions;
 using Olav.Sanity.Client.Mutators;
+using sanity;
+using Transaction = sanity.Transaction;
 
 namespace Olav.Sanity.Client
 {
@@ -164,6 +167,36 @@ namespace Olav.Sanity.Client
             var url = $"mutate/{_dataset}?returnIds={returnIds.ToString().ToLower()}&returnDocuments={returnDocuments.ToString().ToLower()}&visibility={visibility.ToString().ToLower()}";
             var message = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
             return await ResponseToResult<MutationResult>(message).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Get transaction history for a documents
+        /// </summary>
+        /// <param name="id">Id of the document</param>
+        /// <param name="query">Enables filtering of transaction history</param>
+        /// <returns>Tuple of HttpStatusCode and a TransactionResult</returns>
+        public virtual async Task<(HttpStatusCode, TransactionResult)> GetTransactions(string id, TransactionsQuery query)
+        {
+            var url = $"history/{_dataset}/transactions/{id}?{query.BuildQueryString()}";
+            var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
+            return !response.IsSuccessStatusCode
+                ? (response.StatusCode, null)
+                : (response.StatusCode, 
+                    new TransactionResult(
+                        NdJsonConvert.Deserialize<Transaction>(await response.Content.ReadAsStringAsync())));
+        }
+
+        /// <summary>
+        /// Get a specific revision of a document
+        /// </summary>
+        /// <param name="id">Document id</param>
+        /// <param name="revision">The revision id</param>
+        /// <returns>Tuple of HttpStatusCode and a T wrapped in a DocumentResult</returns>
+        public virtual async Task<(HttpStatusCode, DocumentResult<T>)> GetDocumentRevision<T>(string id, string revision) where T : class
+        {
+            var message = await _httpClient.GetAsync($"history/{_dataset}/documents/{id}?revision={revision}")
+                .ConfigureAwait(false);
+            return await ResponseToResult<DocumentResult<T>>(message).ConfigureAwait(false);
         }
 
         public void Dispose()
