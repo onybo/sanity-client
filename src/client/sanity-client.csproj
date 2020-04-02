@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -11,6 +11,7 @@
     <PackageTags>CMS Sanity</PackageTags>
     <Description>.Net Core client for Sanity CMS https://www.sanity.io/</Description>
     <Version>$(SemVer)</Version>
+    <RootNamespace>Olav.Sanity.Client</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
