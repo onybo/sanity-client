@@ -23,8 +23,8 @@ var client = new SanityClient(<project id>, <dataset name>,
 var result = await client.Query<Document>("*[_type==\"<document type name>\"]");
 ```
 
-QUerySingle Example
-``csharp
+QuerySingle Example:
+```csharp
 var client = new SanityClient(<project id>, <dataset name>),
     null, false);
 var result = await client.Query<Movie>("*[_type =="movie"] | order(_createdAt desc) [0]");
@@ -41,6 +41,6 @@ var client = new SanityClient("<your-project-id>", "<dataset name>",
 var result = await client.Mutate(mutations, true, true);
 ```
 
-You can add multiple Mutations by chaning AddCreate, AddCreateOrReplace, AddCreateIfNotExists, AddDelete and AddPatch.
+You can add multiple Mutations by chaining AddCreate, AddCreateOrReplace, AddCreateIfNotExists, AddDelete and AddPatch.
 
 The SanityClient will create a HttpClient and the SanityClient is shareable, just as the HttpClient so you should make sure to only create one instance of the SanityClient per project. Usually you will not connect to more than one project in a single application so the SanityClient should be a Singleton. 
