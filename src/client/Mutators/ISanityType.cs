@@ -1,11 +1,10 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Olav.Sanity.Client.Mutators
 {
     public interface ISanityType
     {
-        [JsonProperty("_type")]
+        [JsonPropertyName("_type")]
         string SanityTypeName { get; }
     }
 }

@@ -1,13 +1,12 @@
 using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Olav.Sanity.Client.Mutators
 {
     public class Mutations
     {
-        [JsonProperty(PropertyName = "Mutations")]
+        [JsonPropertyName("Mutations")]
         private readonly List<object> _mutations;
 
 
@@ -44,15 +43,15 @@ namespace Olav.Sanity.Client.Mutators
 
         public string Serialize()
         {
-            return JsonConvert.SerializeObject(
-                        this,
-                        Formatting.Indented,
-                        new JsonSerializerSettings
-                        {
-                            ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                            NullValueHandling = NullValueHandling.Ignore
-                        }
-                    );
+            return JsonSerializer.Serialize(
+                this,
+                new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    IgnoreNullValues = true,
+                    WriteIndented = true
+                }
+            );
         }
     }
 }

@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace Olav.Sanity.Client
 {
     public interface ISanityDoc

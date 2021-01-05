@@ -1,10 +1,10 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Olav.Sanity.Client.Mutators
 {
     public interface IHaveId
     {
-        [JsonProperty("_id")]
-        string Id {get;}        
+        [JsonPropertyName("_id")]
+        string Id {get;}
     }
 }

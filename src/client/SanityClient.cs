@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Olav.Sanity.Client.Extensions;
 using Olav.Sanity.Client.Mutators;
 using Olav.Sanity.Client.Transactions;
@@ -86,7 +86,7 @@ namespace Olav.Sanity.Client
             }
             var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            return (message.StatusCode, JsonConvert.DeserializeObject<T>(content));
+            return (message.StatusCode, JsonSerializer.Deserialize<T>(content, JsonOptions.DefaultJsonSerializerOptions));
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Olav.Sanity.Client
         /// <returns>Tuple of HttpStatusCode and T's wrapped in a QueryResult</returns>
         public virtual async Task<(HttpStatusCode, QueryResult<T[]>)> Query<T>(string query, bool excludeDrafts = true)
         {
-            var encodedQ = System.Net.WebUtility.UrlEncode(query);
+            var encodedQ = WebUtility.UrlEncode(query);
             var message = await _httpClient.GetAsync($"query/{_dataset}?query={encodedQ}").ConfigureAwait(false);
             return await QueryResultToResult<QueryResult<T[]>, T>(message, excludeDrafts).ConfigureAwait(false);
         }
@@ -113,7 +113,7 @@ namespace Olav.Sanity.Client
             }
             var content = await message.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            var result = JsonConvert.DeserializeObject<T>(content);
+            var result = JsonSerializer.Deserialize<T>(content, JsonOptions.DefaultJsonSerializerOptions);
             result.Result = excludeDrafts ?
                                 result.Result.Where(doc => !doc.IsDraftDocument()).ToArray() :
                                 result.Result;
@@ -143,7 +143,7 @@ namespace Olav.Sanity.Client
             }
             var content = await message.Content.ReadAsStringAsync();
 
-            var result = JsonConvert.DeserializeObject<T>(content);
+            var result = JsonSerializer.Deserialize<T>(content, JsonOptions.DefaultJsonSerializerOptions);
 
             return (message.StatusCode, result);
         }
