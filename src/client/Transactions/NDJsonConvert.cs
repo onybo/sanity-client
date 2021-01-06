@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Olav.Sanity.Client.Transactions
 {
@@ -11,7 +11,7 @@ namespace Olav.Sanity.Client.Transactions
         {
             var jsonSegments = ndJson.Split(Environment.NewLine.ToCharArray());
             return jsonSegments.Where(json => !string.IsNullOrWhiteSpace(json))
-                .Select(JsonConvert.DeserializeObject<T>)
+                .Select(json => JsonSerializer.Deserialize<T>(json, JsonOptions.DefaultJsonSerializerOptions))
                 .ToList();
         }
     }
